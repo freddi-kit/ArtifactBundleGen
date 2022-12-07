@@ -7,8 +7,13 @@ public struct ArtifactBundleGen {
     private let buildFolderName: String
     private let config: Config
 
+    private let folderCreator = FolderCreator()
+    private let lipoRunner = LipoRunnner()
+    private let fileCopy = FileCopy()
+    private let fileExistChecker = FileExistChecker()
+
     private var artifactBundleFolderName: String {
-        "\(name)-\(version)-artifact-bundle"
+        "\(name).artifactbundle"
     }
 
     private var appleUniversalBinaryFolderName: String {
@@ -20,52 +25,29 @@ public struct ArtifactBundleGen {
     }
 
     private func prepareArtifactBundleFolder() throws {
-        try FileManager.default.createDirectory(
-            atPath: artifactBundleFolderName,
-            withIntermediateDirectories: false
-        )
+        try folderCreator.createFolder(name: artifactBundleFolderName)
     }
 
     private func generateAppleUniversalUniversalBinaryArchIfExists() throws -> [Variant] {
-        guard FileManager.default.fileExists(atPath: appleUniversalBinaryPath) else { return [] }
+        guard fileExistChecker.isExist(path: appleUniversalBinaryPath) else { return [] }
 
         var variants: [Variant] = []
-        let task = Process()
-        let pipe = Pipe()
+        let supoortedArchs = try lipoRunner.chechArch(of: appleUniversalBinaryPath)
 
-        task.standardOutput = pipe
-        task.standardError = pipe
-        task.arguments = ["-c", "lipo -archs \(appleUniversalBinaryPath)"]
-        task.launchPath = "/bin/zsh"
-        task.standardInput = nil
-        try task.run()
-
-        let outputData = pipe.fileHandleForReading.readDataToEndOfFile()
-        let output = String(data: outputData, encoding: .utf8)
-
-        let separaterSet = CharacterSet([" ", "\n"])
-        let supportedCPUs = output!.components(separatedBy: separaterSet)
-            .filter { $0 != "" }
-
-        let destinationUniversalBinaryFolderName = "\(artifactBundleFolderName)/\(Constants.appBundleUniversalBinaryFolderName)"
-        try FileManager.default.createDirectory(
-            atPath: destinationUniversalBinaryFolderName,
-            withIntermediateDirectories: false
-        )
+        let appBundleUniversalBinaryFolderName = "\(name)-\(version)-macosx"
+        let destinationUniversalBinaryFolderName = "\(artifactBundleFolderName)/\(appBundleUniversalBinaryFolderName)/bin"
+        try folderCreator.createFolder(name: destinationUniversalBinaryFolderName)
 
         let destinationUniversalBinaryPath = "\(destinationUniversalBinaryFolderName)/\(name)"
         let originExecutableURL = URL(fileURLWithPath: appleUniversalBinaryPath)
-        let distinationURL = URL(fileURLWithPath: destinationUniversalBinaryPath)
+        let destinationURL = URL(fileURLWithPath: destinationUniversalBinaryPath)
 
-        try FileManager.default.copyItem(
-            at: originExecutableURL,
-            to: distinationURL
-        )
+        try fileCopy.copy(from: originExecutableURL, to: destinationURL)
 
         variants.append(
             Variant(
-                path: "\(Constants.appBundleUniversalBinaryFolderName)/\(name)",
-                supportedTriples: supportedCPUs.map {
+                path: "\(appBundleUniversalBinaryFolderName)/bin/\(name)",
+                supportedTriples: supoortedArchs.map {
                     "\($0)-apple-macosx"
                 }
             )
@@ -80,26 +62,20 @@ public struct ArtifactBundleGen {
         // check for all triples
         for triple in VariantTriples.triples {
             let executablePath = "\(buildFolderName)/\(triple)/\(config.rawValue)/\(name)"
-            guard FileManager.default.fileExists(atPath: executablePath) else { continue }
+            guard fileExistChecker.isExist(path: executablePath) else { continue }
 
-            let artifactTripleDirectryPath = "\(artifactBundleFolderName)/\(triple)"
-            try FileManager.default.createDirectory(
-                atPath: "\(artifactBundleFolderName)/\(triple)",
-                withIntermediateDirectories: false
-            )
+            let artifactTripleDirectryPath = "\(artifactBundleFolderName)/\(triple)/bin"
+            try folderCreator.createFolder(name: artifactTripleDirectryPath)
 
             let destinationPath = "\(artifactTripleDirectryPath)/\(name)"
             let originExecutableURL = URL(fileURLWithPath: executablePath)
-            let distinationURL = URL(fileURLWithPath: destinationPath)
+            let destinationURL = URL(fileURLWithPath: destinationPath)
 
-            try FileManager.default.copyItem(
-                at: originExecutableURL,
-                to: distinationURL
-            )
+            try fileCopy.copy(from: originExecutableURL, to: destinationURL)
 
             variants.append(
                 Variant(
-                    path: "\(triple)/\(name)",
+                    path: "\(triple)/bin/\(name)",
                     supportedTriples: [triple]
                 )
             )
@@ -116,7 +92,7 @@ public struct ArtifactBundleGen {
         )
 
         return ArtifactBundle(
-            schemaVersion: "1.0.0",
+            schemaVersion: "1.0",
             artifacts: [name: artifact]
         )
     }

@@ -1,8 +1,7 @@
-//
-//  File.swift
-//  
-//
-//  Created by JP29872 on 2022/12/07.
-//
-
 import Foundation
+
+class FileExistChecker {
+    func isExist(path: String) -> Bool {
+        FileManager.default.fileExists(atPath: path)
+    }
+}

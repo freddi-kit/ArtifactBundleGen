@@ -1,8 +1,14 @@
-//
-//  File.swift
-//  
-//
-//  Created by JP29872 on 2022/12/07.
-//
-
 import Foundation
+
+class FolderCreator {
+    func createFolder(name: String) throws {
+        do {
+            try FileManager.default.createDirectory(
+                atPath: name,
+                withIntermediateDirectories: true
+            )
+        } catch {
+            throw ArtifactBundleGenError.folderCreationFailure(folderName: name, error: error)
+        }
+    }
+}

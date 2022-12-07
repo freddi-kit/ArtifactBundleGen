@@ -6,6 +6,6 @@ final class ArtifactBundleGenTests: XCTestCase {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct
         // results.
-        XCTAssertEqual(ArtifactBundleGen().text, "Hello, World!")
+        // XCTAssertEqual(ArtifactBundleGen().text, "Hello, World!")
     }
 }
