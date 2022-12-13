@@ -4,7 +4,7 @@ class ZipComposer {
     func composeBundle(path bundlePath: URL) async throws {
         try await withCheckedThrowingContinuation { continuation in
             do {
-                try Process.run(URL(fileURLWithPath: "/usr/bin/zip"), arguments: ["-r", "\(bundlePath.path).zip", "\(bundlePath.path)"]) { _ in
+                try Process.run(URL(fileURLWithPath: "/usr/bin/zip"), arguments: ["-r", "\(bundlePath.relativePath).zip", "\(bundlePath.relativePath)"]) { _ in
                     continuation.resume(returning: ())
                 }
             } catch {
