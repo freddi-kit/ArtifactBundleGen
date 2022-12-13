@@ -31,7 +31,7 @@ let package = Package(
     ],
     dependencies: [
         // ... some dependencies
-        .package(url: "https://github.com/freddi-kit/ArtifactBundleGen.git", .exact("0.0.1"))
+        .package(url: "https://github.com/freddi-kit/ArtifactBundleGen.git", .exact("0.0.2"))
     ],
 
 ```
@@ -60,7 +60,7 @@ let package = Package(
     ...
     products: [
         // here
-        .executable(name: {executable-bame}, targets: [...]),
+        .executable(name: {executable-name}, targets: [...]),
     ],
 ```
 
