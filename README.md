@@ -14,7 +14,7 @@ $ swift build -c debug --arch arm64 --arch x86_64
 # .build is generated
 
 # Call command
-$ swift package generate-artifact-bundle --package-version 0.5.11 --package-name some-awesome-tool --build-config debug --build-folder .build
+$ swift package generate-artifact-bundle --package-version 0.5.11 --executable-name some-awesome-tool --build-config debug --build-folder .build
 
 $ ls
 > some-awesome-tool.artifactbundle.zip
