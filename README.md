@@ -47,7 +47,7 @@ $ swift build -c debug --arch arm64 --arch x86_64
 ### 3. Call ArtifactBundleGen
 
 ```sh
-$ swift package generate-artifact-bundle --package-version {version} --package-name {tool_name} --build-config {config} --build-folder {folder}
+$ swift package generate-artifact-bundle --package-version {version} --executable-name {executable-name} --build-config {config} --build-folder {folder}
 ```
 
 {tool_name}.artifactbundle will be generated!
