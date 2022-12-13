@@ -14,13 +14,10 @@ $ swift build -c debug --arch arm64 --arch x86_64
 # .build is generated
 
 # Call command
-$ swift package generate-artifact-bundle --package-version 0.5.11 --package-name some-awesome-tool --build-config debug --build-folder .build
+$ swift package generate-artifact-bundle --package-version 0.5.11 --executable-name some-awesome-tool --build-config debug --build-folder .build
 
 $ ls
-> some-awesome-tool.artifactbundle
-
-# zip it and release!
-$ zip -r some-awesome-tool.artifactbundle.zip some-awesome-tool.artifactbundle
+> some-awesome-tool.artifactbundle.zip
 ```
 
 ## Usase
@@ -28,7 +25,7 @@ $ zip -r some-awesome-tool.artifactbundle.zip some-awesome-tool.artifactbundle
 
 ```swift
 let package = Package(
-    name: "XcodeGen",
+    name: "SomeTools",
     products: [
         // ... some products
     ],
@@ -56,7 +53,17 @@ $ swift package generate-artifact-bundle --package-version {version} --package-n
 {tool_name}.artifactbundle will be generated!
 
 #### Opitions
-- --package-name: Name of Aritfact Bundle. Please specify executable tool's name
+- --executable-name: Name of Aritfact Bundle. Please specify executable product's `name` string
+
+```swift
+let package = Package(
+    ...
+    products: [
+        // here
+        .executable(name: {executable-bame}, targets: [...]),
+    ],
+```
+
 - --build-config: build config. `debug` or `release`
 
 ##### optionals
@@ -64,10 +71,13 @@ $ swift package generate-artifact-bundle --package-version {version} --package-n
 - --build-folder: version of package (default is .build)
 
 
-### 4. Zip Artifact Bundle and release the zip!
+### 4. Complete!
+
+Zip file is generated!
 
 ```sh
-$ zip -r {tool_name}.artifactbundle.zip {tool_name}.artifactbundle
+$ ls 
+> {tool_name}.artifactbundle.zip
 ```
 
 

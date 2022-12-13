@@ -5,15 +5,15 @@ import OSLog
 @main
 struct ArtifactBundleGenCommand: CommandPlugin {
 
-    func performCommand(context: PluginContext, arguments: [String]) throws {
+    func performCommand(context: PluginContext, arguments: [String]) async throws {
         var argumentExtractor = ArgumentExtractor(arguments)
 
         let packageVersionOption = argumentExtractor.extractOption(named: "package-version")
-        let packageNameOption = argumentExtractor.extractOption(named: "package-name")
+        let executableNameOption = argumentExtractor.extractOption(named: "executable-name")
         let buildFolderNameOption = argumentExtractor.extractOption(named: "build-folder")
         let configOption = argumentExtractor.extractOption(named: "build-config")
 
-        guard let name = packageNameOption.first else {
+        guard let name = executableNameOption.first else {
             throw ArtifactBundleGenError.nameOptionMissing
         }
 
@@ -27,6 +27,6 @@ struct ArtifactBundleGenCommand: CommandPlugin {
             buildFolderName: buildFolderNameOption.first ?? ".build",
             config: config
         )
-        try artifactBundleGen.generate()
+        try await artifactBundleGen.generate()
     }
 }

@@ -14,6 +14,10 @@ enum ArtifactBundleGenError: LocalizedError, CustomStringConvertible {
     case lipoFailure(error: Error)
     case lipoEmptyResult
 
+    case zipFailure(error: Error)
+
+    case cleanFailure(error: Error)
+
     case nameOptionMissing
     case configOptionParseError(configString: String)
 
@@ -27,6 +31,8 @@ enum ArtifactBundleGenError: LocalizedError, CustomStringConvertible {
         case .lipoEmptyResult: return "Error, lipo returns empty result"
         case .nameOptionMissing: return "Please specify to name by --package-name"
         case .configOptionParseError(let configString): return "Failed to parse config specified by --build-config: \(configString)"
+        case .zipFailure(error: let error): return "Failed to zip artifact bundle: \(error.localizedDescription)"
+        case .cleanFailure(error: let error): return "Failed to clean artifact bundle: \(error.localizedDescription)"
         }
     }
 }
