@@ -77,7 +77,7 @@ Zip file is generated!
 
 ```sh
 $ ls 
-> {tool_name}.artifactbundle
+> {tool_name}.artifactbundle.zip
 ```
 
 
