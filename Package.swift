@@ -5,6 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "ArtifactBundleGen",
+    platforms: [.macOS(.v12)],
     products: [
         .plugin(name: "ArtifactBundleGenCommand", targets: ["ArtifactBundleGenCommand"]),
         .library(name: "ArtifactBundleGen", targets: ["ArtifactBundleGen"])

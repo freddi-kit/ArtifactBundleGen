@@ -11,6 +11,8 @@ public struct ArtifactBundleGen {
     private let lipoRunner = LipoRunnner()
     private let fileCopy = FileCopy()
     private let fileExistChecker = FileExistChecker()
+    private let zipComposer = ZipComposer()
+    private let fileCleaner = FileCleaner()
 
     private var artifactBundleFolderName: String {
         "\(name).artifactbundle"
@@ -116,8 +118,7 @@ public struct ArtifactBundleGen {
         self.config = config
     }
 
-    public func generate() throws {
-
+    public func generate() async throws {
         try prepareArtifactBundleFolder()
 
         var variants: [Variant] = []
@@ -133,5 +134,10 @@ public struct ArtifactBundleGen {
 
         try encodeToJsonString(artifactBundle: artifactBundle)
             .write(to: destinationPath, atomically: true, encoding: .utf8)
+
+        let artifactBundleFolderPath = URL(fileURLWithPath: artifactBundleFolderName)
+
+        try await zipComposer.composeBundle(path: artifactBundleFolderPath)
+        try fileCleaner.clean(path: artifactBundleFolderPath)
     }
 }
