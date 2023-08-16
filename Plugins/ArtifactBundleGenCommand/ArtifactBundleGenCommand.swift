@@ -18,7 +18,7 @@ struct ArtifactBundleGenCommand: CommandPlugin {
         }
 
         guard let configString = configOption.first, let config = Config(rawValue: configString) else {
-            throw ArtifactBundleGenError.configOptionParseError(configString: configOption.first ?? "{empty}")
+            throw ArtifactBundleGenError.configOptionParseError(configString: configOption.first)
         }
 
         let artifactBundleGen = ArtifactBundleGen(

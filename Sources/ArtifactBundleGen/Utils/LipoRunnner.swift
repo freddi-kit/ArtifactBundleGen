@@ -7,8 +7,7 @@ class LipoRunnner {
 
         task.standardOutput = pipe
         task.standardError = pipe
-        task.launchPath = "/usr/bin/xcrun"
-        task.arguments = ["lipo", "-archs", "\(targetPath)"]
+        task.arguments = ["-c", "lipo -archs \(targetPath)"]
         task.launchPath = "/bin/zsh"
         task.standardInput = nil
         do {

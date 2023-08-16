@@ -82,5 +82,4 @@ $ ls
 
 
 ## TODOs
-- [ ] include LICENSE file
-- [ ] Suport other type
+- [ ] Suport XCFramework
