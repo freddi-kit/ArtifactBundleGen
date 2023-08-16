@@ -19,7 +19,7 @@ enum ArtifactBundleGenError: LocalizedError, CustomStringConvertible {
     case cleanFailure(error: Error)
 
     case nameOptionMissing
-    case configOptionParseError(configString: String)
+    case configOptionParseError(configString: String?)
 
     var description: String { return errorDescription ?? "Unexpected Error" }
 
@@ -29,8 +29,13 @@ enum ArtifactBundleGenError: LocalizedError, CustomStringConvertible {
         case .fileCopyFailure(let origin, let destination, let error): return "Failed to copy file from \"\(origin)\" to \"\(destination)\" : \(error.localizedDescription)"
         case .lipoFailure(let error): return "Failed to run lipo: \(error.localizedDescription)"
         case .lipoEmptyResult: return "Error, lipo returns empty result"
-        case .nameOptionMissing: return "Please specify to name by --package-name"
-        case .configOptionParseError(let configString): return "Failed to parse config specified by --build-config: \(configString)"
+        case .nameOptionMissing: return "Please specify to name by --executable-name"
+        case .configOptionParseError(let configString):
+            if let configString {
+                return "Failed to parse config specified by --build-config: \(configString)"
+            } else {
+                return "Failed to parse config specified by --build-config: Please specify release or debug"
+            }
         case .zipFailure(error: let error): return "Failed to zip artifact bundle: \(error.localizedDescription)"
         case .cleanFailure(error: let error): return "Failed to clean artifact bundle: \(error.localizedDescription)"
         }
