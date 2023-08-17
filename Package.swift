@@ -7,7 +7,7 @@ let package = Package(
     name: "ArtifactBundleGen",
     platforms: [.macOS(.v12)],
     products: [
-        .plugin(name: "ArtifactBundleGenCommand", targets: ["ArtifactBundleGenCommand"]),
+        .plugin(name: "ArtifactBundleGenPluginCommand", targets: ["ArtifactBundleGenPluginCommand"]),
         .library(name: "ArtifactBundleGen", targets: ["ArtifactBundleGen"])
     ],
     dependencies: [
@@ -20,13 +20,13 @@ let package = Package(
             name: "ArtifactBundleGenTests",
             dependencies: ["ArtifactBundleGen"]),
         .plugin(
-            name: "ArtifactBundleGenCommand",
+            name: "ArtifactBundleGenPluginCommand",
             capability: .command(
                 intent: .custom(verb: "generate-artifact-bundle",
                                 description: "Generate Artifact Bundle"),
                 permissions: [.writeToPackageDirectory(reason: "Save Artifact Bundle information")]
             ),
-            path: "Plugins/ArtifactBundleGenCommand"
+            path: "Plugins/ArtifactBundleGenPluginCommand"
         ),
     ]
 )

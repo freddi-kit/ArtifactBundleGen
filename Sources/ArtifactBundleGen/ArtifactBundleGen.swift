@@ -6,6 +6,7 @@ public struct ArtifactBundleGen {
     private let name: String
     private let buildFolderName: String
     private let config: Config
+    private let includeResourcePaths: [String]
 
     private let folderCreator = FolderCreator()
     private let lipoRunner = LipoRunnner()
@@ -30,7 +31,7 @@ public struct ArtifactBundleGen {
         try folderCreator.createFolder(name: artifactBundleFolderName)
     }
 
-    private func generateAppleUniversalUniversalBinaryArchIfExists() throws -> [Variant] {
+    private func generateAppleUniversalUniversalBinaryArchIfExists(with includeResourcePaths: [String]) throws -> [Variant] {
         guard fileExistChecker.isExist(path: appleUniversalBinaryPath) else { return [] }
 
         var variants: [Variant] = []
@@ -40,11 +41,17 @@ public struct ArtifactBundleGen {
         let destinationUniversalBinaryFolderName = "\(artifactBundleFolderName)/\(appBundleUniversalBinaryFolderName)/bin"
         try folderCreator.createFolder(name: destinationUniversalBinaryFolderName)
 
-        let destinationUniversalBinaryPath = "\(destinationUniversalBinaryFolderName)/\(name)"
         let originExecutableURL = URL(fileURLWithPath: appleUniversalBinaryPath)
-        let destinationURL = URL(fileURLWithPath: destinationUniversalBinaryPath)
+        let destinationURL = URL(fileURLWithPath: "\(destinationUniversalBinaryFolderName)/\(name)")
 
         try fileCopy.copy(from: originExecutableURL, to: destinationURL)
+        try includeResourcePaths.forEach {
+            let resourceFileURL = URL(fileURLWithPath: $0)
+            try fileCopy.copy(
+                from: resourceFileURL,
+                to: URL(fileURLWithPath: destinationUniversalBinaryFolderName).appendingPathComponent(resourceFileURL.lastPathComponent)
+            )
+        }
 
         variants.append(
             Variant(
@@ -58,7 +65,7 @@ public struct ArtifactBundleGen {
         return variants
     }
 
-    private func generateEachTriplesVariantsIfExists() throws -> [Variant] {
+    private func generateEachTriplesVariantsIfExists(with includeResourcePaths: [String]) throws -> [Variant] {
         var variants: [Variant] = []
 
         // check for all triples
@@ -69,11 +76,17 @@ public struct ArtifactBundleGen {
             let artifactTripleDirectryPath = "\(artifactBundleFolderName)/\(triple)/bin"
             try folderCreator.createFolder(name: artifactTripleDirectryPath)
 
-            let destinationPath = "\(artifactTripleDirectryPath)/\(name)"
             let originExecutableURL = URL(fileURLWithPath: executablePath)
-            let destinationURL = URL(fileURLWithPath: destinationPath)
+            let destinationURL = URL(fileURLWithPath: "\(artifactTripleDirectryPath)/\(name)")
 
             try fileCopy.copy(from: originExecutableURL, to: destinationURL)
+            try includeResourcePaths.forEach {
+                let resourceFileURL = URL(fileURLWithPath: $0)
+                try fileCopy.copy(
+                    from: resourceFileURL,
+                    to: URL(fileURLWithPath: artifactTripleDirectryPath).appendingPathComponent(resourceFileURL.lastPathComponent)
+                )
+            }
 
             variants.append(
                 Variant(
@@ -87,7 +100,7 @@ public struct ArtifactBundleGen {
     }
 
     private func generateArtifactBundle(variants: [Variant]) -> ArtifactBundle {
-        let artifact =  Artifact(
+        let artifact = Artifact(
             version: version,
             type: .executable,
             variants: variants
@@ -111,11 +124,12 @@ public struct ArtifactBundleGen {
         return string.replacingOccurrences(of: "\\", with: "")
     }
 
-    public init(version: String, name: String, buildFolderName: String, config: Config) {
+    public init(version: String, name: String, buildFolderName: String, config: Config, includeResourcePaths: [String]) {
         self.version = version
         self.name = name
         self.buildFolderName = buildFolderName
         self.config = config
+        self.includeResourcePaths = includeResourcePaths
     }
 
     public func generate() async throws {
@@ -123,10 +137,10 @@ public struct ArtifactBundleGen {
 
         var variants: [Variant] = []
 
-        let generatedAppleUniversalUniversalBinaryVariants = try generateAppleUniversalUniversalBinaryArchIfExists()
+        let generatedAppleUniversalUniversalBinaryVariants = try generateAppleUniversalUniversalBinaryArchIfExists(with: includeResourcePaths)
         variants.append(contentsOf: generatedAppleUniversalUniversalBinaryVariants)
 
-        let generatedEachTriplesVariants = try generateEachTriplesVariantsIfExists()
+        let generatedEachTriplesVariants = try generateEachTriplesVariantsIfExists(with: includeResourcePaths)
         variants.append(contentsOf: generatedEachTriplesVariants)
 
         let artifactBundle = generateArtifactBundle(variants: variants)
