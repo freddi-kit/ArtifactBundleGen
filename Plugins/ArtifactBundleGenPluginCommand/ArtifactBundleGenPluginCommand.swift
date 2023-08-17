@@ -3,7 +3,7 @@ import Foundation
 import OSLog
 
 @main
-struct ArtifactBundleGenCommand: CommandPlugin {
+struct ArtifactBundleGenPluginCommand: CommandPlugin {
 
     func performCommand(context: PluginContext, arguments: [String]) async throws {
         var argumentExtractor = ArgumentExtractor(arguments)
@@ -12,6 +12,7 @@ struct ArtifactBundleGenCommand: CommandPlugin {
         let executableNameOption = argumentExtractor.extractOption(named: "executable-name")
         let buildFolderNameOption = argumentExtractor.extractOption(named: "build-folder")
         let configOption = argumentExtractor.extractOption(named: "build-config")
+        let includeResourceOption = argumentExtractor.extractOption(named: "include-resource-path")
 
         guard let name = executableNameOption.first else {
             throw ArtifactBundleGenError.nameOptionMissing
@@ -25,7 +26,8 @@ struct ArtifactBundleGenCommand: CommandPlugin {
             version: packageVersionOption.first ?? "1.0.0",
             name: name,
             buildFolderName: buildFolderNameOption.first ?? ".build",
-            config: config
+            config: config,
+            includeResourcePaths: includeResourceOption
         )
         try await artifactBundleGen.generate()
     }

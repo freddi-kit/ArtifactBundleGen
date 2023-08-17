@@ -14,7 +14,7 @@ $ swift build -c debug --arch arm64 --arch x86_64
 # .build is generated
 
 # Call command
-$ swift package generate-artifact-bundle --package-version 0.5.11 --executable-name some-awesome-tool --build-config debug --build-folder .build
+$ swift package plugin generate-artifact-bundle --package-version 0.5.11 --executable-name some-awesome-tool --build-config debug --build-folder .build
 
 $ ls
 > some-awesome-tool.artifactbundle.zip
@@ -47,7 +47,7 @@ $ swift build -c debug --arch arm64 --arch x86_64
 ### 3. Call ArtifactBundleGen
 
 ```sh
-$ swift package generate-artifact-bundle --package-version {version} --executable-name {executable-name} --build-config {config} --build-folder {folder}
+$ swift package plugin generate-artifact-bundle --package-version {version} --executable-name {executable-name} --build-config {config} --build-folder {folder}
 ```
 
 {tool_name}.artifactbundle will be generated!
@@ -69,6 +69,13 @@ let package = Package(
 ##### optionals
 - --package-version: version of package (default is 1.0.0)
 - --build-folder: version of package (default is .build)
+- --include-resource-path: path to add as resources to artifact bundle (multiple is okay)
+
+```
+swift package plugin generate-artifact-bundle --package-version ... \
+    --include-resource-path some-awesome-bundle.bundle \
+    --include-resource-path some-awesome-image.jpg \
+```
 
 
 ### 4. Complete!
