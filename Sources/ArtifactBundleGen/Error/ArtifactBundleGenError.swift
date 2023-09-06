@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  ArtifactBundleGenError.swift
+//
 //
 //  Created by JP29872 on 2022/12/07.
 //
@@ -25,19 +25,19 @@ enum ArtifactBundleGenError: LocalizedError, CustomStringConvertible {
 
     var errorDescription: String? {
         switch self {
-        case .folderCreationFailure(let folderName, let error): return "Failed to create folder named \"\(folderName)\" : \(error.localizedDescription)"
-        case .fileCopyFailure(let origin, let destination, let error): return "Failed to copy file from \"\(origin)\" to \"\(destination)\" : \(error.localizedDescription)"
-        case .lipoFailure(let error): return "Failed to run lipo: \(error.localizedDescription)"
+        case let .folderCreationFailure(folderName, error): return "Failed to create folder named \"\(folderName)\" : \(error.localizedDescription)"
+        case let .fileCopyFailure(origin, destination, error): return "Failed to copy file from \"\(origin)\" to \"\(destination)\" : \(error.localizedDescription)"
+        case let .lipoFailure(error): return "Failed to run lipo: \(error.localizedDescription)"
         case .lipoEmptyResult: return "Error, lipo returns empty result"
         case .nameOptionMissing: return "Please specify to name by --executable-name"
-        case .configOptionParseError(let configString):
+        case let .configOptionParseError(configString):
             if let configString {
                 return "Failed to parse config specified by --build-config: \(configString)"
             } else {
                 return "Failed to parse config specified by --build-config: Please specify release or debug"
             }
-        case .zipFailure(error: let error): return "Failed to zip artifact bundle: \(error.localizedDescription)"
-        case .cleanFailure(error: let error): return "Failed to clean artifact bundle: \(error.localizedDescription)"
+        case let .zipFailure(error: error): return "Failed to zip artifact bundle: \(error.localizedDescription)"
+        case let .cleanFailure(error: error): return "Failed to clean artifact bundle: \(error.localizedDescription)"
         }
     }
 }

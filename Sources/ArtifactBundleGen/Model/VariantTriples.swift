@@ -13,7 +13,7 @@ enum VariantTriples {
 
     enum OS: String, CaseIterable {
         case macosx
-        case linux_gnu="linux-gnu"
+        case linux_gnu = "linux-gnu"
         case windows
     }
 

@@ -21,7 +21,8 @@ class LipoRunnner {
 
         let separaterSet = CharacterSet([" ", "\n"])
         guard let supportedCPUs = output?.components(separatedBy: separaterSet)
-            .filter({ $0 != "" }) else {
+            .filter({ $0 != "" })
+        else {
             throw ArtifactBundleGenError.lipoEmptyResult
         }
         return supportedCPUs
