@@ -1,5 +1,5 @@
-import XCTest
 @testable import ArtifactBundleGen
+import XCTest
 
 final class ArtifactBundleGenTests: XCTestCase {
     func testExample() throws {

@@ -1,7 +1,6 @@
 import Foundation
 
 public struct ArtifactBundleGen {
-
     private let version: String
     private let name: String
     private let buildFolderName: String
@@ -53,6 +52,16 @@ public struct ArtifactBundleGen {
             )
         }
 
+        let bundleNames = try FileManager.default.contentsOfDirectory(atPath: appleUniversalBinaryFolderName)
+            .filter { $0.hasSuffix(".bundle") }
+
+        for bundleName in bundleNames {
+            try fileCopy.copy(
+                from: URL(fileURLWithPath: appleUniversalBinaryFolderName).appendingPathComponent(bundleName),
+                to: URL(fileURLWithPath: destinationUniversalBinaryFolderName).appendingPathComponent(bundleName)
+            )
+        }
+
         variants.append(
             Variant(
                 path: "\(appBundleUniversalBinaryFolderName)/bin/\(name)",
@@ -70,7 +79,8 @@ public struct ArtifactBundleGen {
 
         // check for all triples
         for triple in VariantTriples.triples {
-            let executablePath = "\(buildFolderName)/\(triple)/\(config.rawValue)/\(name)"
+            let tripleFolderPath = "\(buildFolderName)/\(triple)/\(config.rawValue)"
+            let executablePath = "\(tripleFolderPath)/\(name)"
             guard fileExistChecker.isExist(path: executablePath) else { continue }
 
             let artifactTripleDirectryPath = "\(artifactBundleFolderName)/\(triple)/bin"
@@ -85,6 +95,16 @@ public struct ArtifactBundleGen {
                 try fileCopy.copy(
                     from: resourceFileURL,
                     to: URL(fileURLWithPath: artifactTripleDirectryPath).appendingPathComponent(resourceFileURL.lastPathComponent)
+                )
+            }
+
+            let bundleNames = try FileManager.default.contentsOfDirectory(atPath: tripleFolderPath)
+                .filter { $0.hasSuffix(".bundle") }
+
+            for bundleName in bundleNames {
+                try fileCopy.copy(
+                    from: URL(fileURLWithPath: tripleFolderPath).appendingPathComponent(bundleName),
+                    to: URL(fileURLWithPath: artifactTripleDirectryPath).appendingPathComponent(bundleName)
                 )
             }
 

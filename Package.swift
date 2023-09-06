@@ -11,6 +11,10 @@ let package = Package(
         .library(name: "ArtifactBundleGen", targets: ["ArtifactBundleGen"])
     ],
     dependencies: [
+        .package(
+            url: "https://github.com/nicklockwood/SwiftFormat",
+            from: "0.50.4"
+        ),
     ],
     targets: [
         .target(
