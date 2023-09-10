@@ -1,6 +1,5 @@
 import PackagePlugin
 import Foundation
-import OSLog
 
 @main
 struct ArtifactBundleGenPluginCommand: CommandPlugin {
