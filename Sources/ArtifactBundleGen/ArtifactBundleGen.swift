@@ -23,7 +23,7 @@ public struct ArtifactBundleGen {
     }
 
     private var appleUniversalBinaryPath: String {
-        "\(appleUniversalBinaryFolderName)/xcodegen"
+        "\(appleUniversalBinaryFolderName)/\(name)"
     }
 
     private func prepareArtifactBundleFolder() throws {
