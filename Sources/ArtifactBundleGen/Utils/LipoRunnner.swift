@@ -1,7 +1,7 @@
 import Foundation
 
-class LipoRunnner {
-    func chechArch(of targetPath: String) throws -> [String] {
+struct LipoRunnner {
+    func checkArch(of targetPath: String) throws -> [String] {
         let task = Process()
         let pipe = Pipe()
 
@@ -19,8 +19,8 @@ class LipoRunnner {
         let outputData = pipe.fileHandleForReading.readDataToEndOfFile()
         let output = String(data: outputData, encoding: .utf8)
 
-        let separaterSet = CharacterSet([" ", "\n"])
-        guard let supportedCPUs = output?.components(separatedBy: separaterSet)
+        let separatorSet = CharacterSet([" ", "\n"])
+        guard let supportedCPUs = output?.components(separatedBy: separatorSet)
             .filter({ $0 != "" })
         else {
             throw ArtifactBundleGenError.lipoEmptyResult

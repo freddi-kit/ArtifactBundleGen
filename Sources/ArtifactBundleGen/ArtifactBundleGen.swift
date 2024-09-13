@@ -23,7 +23,7 @@ public struct ArtifactBundleGen {
     }
 
     private var appleUniversalBinaryPath: String {
-        "\(appleUniversalBinaryFolderName)/xcodegen"
+        "\(appleUniversalBinaryFolderName)/\(name)"
     }
 
     private func prepareArtifactBundleFolder() throws {
@@ -34,7 +34,7 @@ public struct ArtifactBundleGen {
         guard fileExistChecker.isExist(path: appleUniversalBinaryPath) else { return [] }
 
         var variants: [Variant] = []
-        let supoortedArchs = try lipoRunner.chechArch(of: appleUniversalBinaryPath)
+        let supportedArchs = try lipoRunner.checkArch(of: appleUniversalBinaryPath)
 
         let appBundleUniversalBinaryFolderName = "\(name)-\(version)-macosx"
         let destinationUniversalBinaryFolderName = "\(artifactBundleFolderName)/\(appBundleUniversalBinaryFolderName)/bin"
@@ -65,7 +65,7 @@ public struct ArtifactBundleGen {
         variants.append(
             Variant(
                 path: "\(appBundleUniversalBinaryFolderName)/bin/\(name)",
-                supportedTriples: supoortedArchs.map {
+                supportedTriples: supportedArchs.map {
                     "\($0)-apple-macosx"
                 }
             )
@@ -83,18 +83,18 @@ public struct ArtifactBundleGen {
             let executablePath = "\(tripleFolderPath)/\(name)"
             guard fileExistChecker.isExist(path: executablePath) else { continue }
 
-            let artifactTripleDirectryPath = "\(artifactBundleFolderName)/\(triple)/bin"
-            try folderCreator.createFolder(name: artifactTripleDirectryPath)
+            let artifactTripleDirectoryPath = "\(artifactBundleFolderName)/\(triple)/bin"
+            try folderCreator.createFolder(name: artifactTripleDirectoryPath)
 
             let originExecutableURL = URL(fileURLWithPath: executablePath)
-            let destinationURL = URL(fileURLWithPath: "\(artifactTripleDirectryPath)/\(name)")
+            let destinationURL = URL(fileURLWithPath: "\(artifactTripleDirectoryPath)/\(name)")
 
             try fileCopy.copy(from: originExecutableURL, to: destinationURL)
             try includeResourcePaths.forEach {
                 let resourceFileURL = URL(fileURLWithPath: $0)
                 try fileCopy.copy(
                     from: resourceFileURL,
-                    to: URL(fileURLWithPath: artifactTripleDirectryPath).appendingPathComponent(resourceFileURL.lastPathComponent)
+                    to: URL(fileURLWithPath: artifactTripleDirectoryPath).appendingPathComponent(resourceFileURL.lastPathComponent)
                 )
             }
 
@@ -104,7 +104,7 @@ public struct ArtifactBundleGen {
             for bundleName in bundleNames {
                 try fileCopy.copy(
                     from: URL(fileURLWithPath: tripleFolderPath).appendingPathComponent(bundleName),
-                    to: URL(fileURLWithPath: artifactTripleDirectryPath).appendingPathComponent(bundleName)
+                    to: URL(fileURLWithPath: artifactTripleDirectoryPath).appendingPathComponent(bundleName)
                 )
             }
 
