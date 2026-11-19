@@ -6,6 +6,7 @@ public struct ArtifactBundleGen {
     private let buildFolderName: String
     private let config: Config
     private let includeResourcePaths: [String]
+    private let universalBinaryFolderName: String?
 
     private let folderCreator = FolderCreator()
     private let lipoRunner = LipoRunnner()
@@ -18,12 +19,16 @@ public struct ArtifactBundleGen {
         "\(name).artifactbundle"
     }
 
-    private var appleUniversalBinaryFolderName: String {
-        "\(buildFolderName)/apple/Products/\(config.headUpperCase)"
-    }
-
-    private var appleUniversalBinaryPath: String {
-        "\(appleUniversalBinaryFolderName)/\(name)"
+    /// Folders where SwiftPM may place a multi-architecture (`--arch arm64 --arch x86_64`) build.
+    /// The location changed in Swift 6.4 from `apple/Products` to `out/Products`.
+    private var appleUniversalBinaryFolderCandidates: [String] {
+        if let universalBinaryFolderName {
+            return [universalBinaryFolderName]
+        }
+        return [
+            "\(buildFolderName)/apple/Products/\(config.headUpperCase)",
+            "\(buildFolderName)/out/Products/\(config.headUpperCase)",
+        ]
     }
 
     private func prepareArtifactBundleFolder() throws {
@@ -31,7 +36,10 @@ public struct ArtifactBundleGen {
     }
 
     private func generateAppleUniversalUniversalBinaryArchIfExists(with includeResourcePaths: [String]) throws -> [Variant] {
-        guard fileExistChecker.isExist(path: appleUniversalBinaryPath) else { return [] }
+        guard let appleUniversalBinaryFolderName = appleUniversalBinaryFolderCandidates.first(where: {
+            fileExistChecker.isExist(path: "\($0)/\(name)")
+        }) else { return [] }
+        let appleUniversalBinaryPath = "\(appleUniversalBinaryFolderName)/\(name)"
 
         var variants: [Variant] = []
         let supportedArchs = try lipoRunner.checkArch(of: appleUniversalBinaryPath)
@@ -144,12 +152,20 @@ public struct ArtifactBundleGen {
         return string.replacingOccurrences(of: "\\", with: "")
     }
 
-    public init(version: String, name: String, buildFolderName: String, config: Config, includeResourcePaths: [String]) {
+    public init(
+        version: String,
+        name: String,
+        buildFolderName: String,
+        config: Config,
+        includeResourcePaths: [String],
+        universalBinaryFolderName: String? = nil
+    ) {
         self.version = version
         self.name = name
         self.buildFolderName = buildFolderName
         self.config = config
         self.includeResourcePaths = includeResourcePaths
+        self.universalBinaryFolderName = universalBinaryFolderName
     }
 
     public func generate() async throws {
@@ -162,6 +178,14 @@ public struct ArtifactBundleGen {
 
         let generatedEachTriplesVariants = try generateEachTriplesVariantsIfExists(with: includeResourcePaths)
         variants.append(contentsOf: generatedEachTriplesVariants)
+
+        guard !variants.isEmpty else {
+            try? fileCleaner.clean(path: URL(fileURLWithPath: artifactBundleFolderName))
+            throw ArtifactBundleGenError.noExecutableFound(
+                name: name,
+                searchedPaths: appleUniversalBinaryFolderCandidates + VariantTriples.triples.map { "\(buildFolderName)/\($0)/\(config.rawValue)" }
+            )
+        }
 
         let artifactBundle = generateArtifactBundle(variants: variants)
         let destinationPath = URL(fileURLWithPath: "\(artifactBundleFolderName)/info.json")
