@@ -12,6 +12,7 @@ struct ArtifactBundleGenPluginCommand: CommandPlugin {
         let buildFolderNameOption = argumentExtractor.extractOption(named: "build-folder")
         let configOption = argumentExtractor.extractOption(named: "build-config")
         let includeResourceOption = argumentExtractor.extractOption(named: "include-resource-path")
+        let universalBinaryFolderOption = argumentExtractor.extractOption(named: "universal-binary-folder")
 
         guard let name = executableNameOption.first else {
             throw ArtifactBundleGenError.nameOptionMissing
@@ -26,7 +27,8 @@ struct ArtifactBundleGenPluginCommand: CommandPlugin {
             name: name,
             buildFolderName: buildFolderNameOption.first ?? ".build",
             config: config,
-            includeResourcePaths: includeResourceOption
+            includeResourcePaths: includeResourceOption,
+            universalBinaryFolderName: universalBinaryFolderOption.first
         )
         try await artifactBundleGen.generate()
     }
