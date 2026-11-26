@@ -3,12 +3,13 @@ import Foundation
 struct LipoRunnner {
     func checkArch(of targetPath: String) throws -> [String] {
         let task = Process()
-        let pipe = Pipe()
+        let outputPipe = Pipe()
+        let errorPipe = Pipe()
 
-        task.standardOutput = pipe
-        task.standardError = pipe
-        task.arguments = ["-c", "lipo -archs \(targetPath)"]
-        task.launchPath = "/bin/zsh"
+        task.executableURL = URL(fileURLWithPath: "/usr/bin/lipo")
+        task.arguments = ["-archs", targetPath]
+        task.standardOutput = outputPipe
+        task.standardError = errorPipe
         task.standardInput = nil
         do {
             try task.run()
@@ -16,13 +17,22 @@ struct LipoRunnner {
             throw ArtifactBundleGenError.lipoFailure(error: error)
         }
 
-        let outputData = pipe.fileHandleForReading.readDataToEndOfFile()
-        let output = String(data: outputData, encoding: .utf8)
+        let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
+        let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+        task.waitUntilExit()
+
+        guard task.terminationStatus == 0 else {
+            throw ArtifactBundleGenError.lipoExitFailure(
+                status: task.terminationStatus,
+                message: String(data: errorData, encoding: .utf8) ?? ""
+            )
+        }
 
         let separatorSet = CharacterSet([" ", "\n"])
-        guard let supportedCPUs = output?.components(separatedBy: separatorSet)
-            .filter({ $0 != "" })
-        else {
+        let supportedCPUs = (String(data: outputData, encoding: .utf8) ?? "")
+            .components(separatedBy: separatorSet)
+            .filter { $0 != "" }
+        guard !supportedCPUs.isEmpty else {
             throw ArtifactBundleGenError.lipoEmptyResult
         }
         return supportedCPUs

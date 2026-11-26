@@ -70,6 +70,9 @@ let package = Package(
 - --package-version: version of package (default is 1.0.0)
 - --build-folder: version of package (default is .build)
 - --include-resource-path: path to add as resources to artifact bundle (multiple is okay)
+- --universal-binary-folder: folder containing the multi-architecture (`--arch arm64 --arch x86_64`) build. By default `{build-folder}/apple/Products/{Config}` and `{build-folder}/out/Products/{Config}` (Swift 6.4+) are searched. The output of `swift build --show-bin-path` (with the same flags as your build) can be passed here.
+
+If no built executable is found, the command fails instead of generating an empty artifact bundle.
 
 ```
 swift package plugin generate-artifact-bundle --package-version ... \
